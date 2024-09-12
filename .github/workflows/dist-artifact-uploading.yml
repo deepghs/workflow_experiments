@@ -27,7 +27,7 @@ jobs:
           mkdir -p wheelhouse
           echo 'build on ${{ matrix.os }}-${{ strategy.job-index }}' > wheelhouse/cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: ./wheelhouse/*.txt
@@ -44,7 +44,7 @@ jobs:
           mkdir -p dist
           echo 'build on source' > dist/source.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: dist/*.txt
@@ -53,7 +53,7 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
         with:
           name: artifact
           path: dist
