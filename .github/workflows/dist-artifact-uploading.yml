@@ -23,7 +23,9 @@ jobs:
 
       - name: Build wheels
         # run: python -m cibuildwheel --output-dir wheelhouse
-        run: echo 'build on ${{ matrix.os }}-${{ strategy.job-index }}' > wheelhouse/cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}.txt
+        run: |
+          mkdir -p wheelhouse
+          echo 'build on ${{ matrix.os }}-${{ strategy.job-index }}' > wheelhouse/cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}.txt
 
       - uses: actions/upload-artifact@v4
         with:
@@ -38,7 +40,9 @@ jobs:
 
       - name: Build sdist
         # run: pipx run build --sdist
-        run: echo 'build on source' > dist/source.txt
+        run: |
+          mkdir -p dist
+          echo 'build on source' > dist/source.txt
 
       - uses: actions/upload-artifact@v4
         with:
@@ -48,9 +52,6 @@ jobs:
   upload_pypi:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
