@@ -1,0 +1,61 @@
+name: Dist Uploading
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+      # - name: Install cibuildwheel
+      #   run: python -m pip install cibuildwheel==2.19.1
+
+      - name: Build wheels
+        # run: python -m cibuildwheel --output-dir wheelhouse
+        run: echo 'build on ${{ matrix.os }}-${{ strategy.job-index }}' > wheelhouse/cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: ./wheelhouse/*.txt
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        # run: pipx run build --sdist
+        run: echo 'build on source' > dist/source.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: dist/*.txt
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          path: dist
+
+      - name: list all the files
+        run: ls -al dist
